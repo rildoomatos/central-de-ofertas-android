@@ -1,0 +1,9 @@
+Este ZIP foi montado como um projeto Android independente.
+
+IMPORTANTE: o seu repositório central-de-ofertas já tem main.py e outros arquivos na raiz.
+Para evitar conflito, o ideal é criar um NOVO repositório GitHub chamado, por exemplo:
+central-de-ofertas-android
+
+e enviar o conteúdo deste ZIP para a raiz desse novo repositório.
+
+Assim, a automação Shopee atual continua intacta no repositório central-de-ofertas.
