@@ -17,20 +17,13 @@ import android.widget.Toast;
 import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String APP_URL =
             "https://script.google.com/macros/s/AKfycbyPUaZA_LsPSdkjt4DeJRYzt96l5EH3Rn6lIco5RbylyLIc5Vf6knrfhWyAPXL6lNoI/exec";
 
-
     private WebView webView;
-
-    private final ExecutorService executor =
-            Executors.newSingleThreadExecutor();
 
 
     // =====================================================
@@ -46,17 +39,14 @@ public class MainActivity extends AppCompatActivity {
                 R.layout.activity_main
         );
 
-
         webView =
                 findViewById(
                         R.id.webView
                 );
 
-
         configurarWebView();
 
         configurarVoltar();
-
 
         webView.loadUrl(
                 APP_URL
@@ -76,7 +66,6 @@ public class MainActivity extends AppCompatActivity {
 
         WebSettings settings =
                 webView.getSettings();
-
 
         settings.setJavaScriptEnabled(
                 true
@@ -114,29 +103,21 @@ public class MainActivity extends AppCompatActivity {
                 false
         );
 
-        settings.setMediaPlaybackRequiresUserGesture(
-                true
-        );
-
 
         CookieManager cookieManager =
                 CookieManager.getInstance();
-
 
         cookieManager.setAcceptCookie(
                 true
         );
 
-
-        CookieManager
-                .getInstance()
-                .setAcceptThirdPartyCookies(
-                        webView,
-                        true
-                );
+        cookieManager.setAcceptThirdPartyCookies(
+                webView,
+                true
+        );
 
 
-        // Ponte entre HTML e Android
+        // Ponte HTML -> Android
         webView.addJavascriptInterface(
                 new AndroidShareBridge(),
                 "AndroidShare"
@@ -160,7 +141,6 @@ public class MainActivity extends AppCompatActivity {
 
                         Uri uri =
                                 request.getUrl();
-
 
                         String host =
                                 uri.getHost() == null
@@ -190,7 +170,6 @@ public class MainActivity extends AppCompatActivity {
                                 uri
                         );
 
-
                         return true;
                     }
 
@@ -206,10 +185,8 @@ public class MainActivity extends AppCompatActivity {
                                 url
                         );
 
-
                         injetarCompartilhamentoNativo();
                     }
-
                 }
         );
     }
@@ -281,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     // =====================================================
-    // FUNÇÕES NATIVAS DO APK
+    // INJETAR FUNÇÕES DO APK
     // =====================================================
 
     private void injetarCompartilhamentoNativo() {
@@ -292,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                 // =========================================
-                // PADRONIZAR MÃOS
+                // PADRONIZAR EMOJIS DE MÃO
                 // =========================================
 
                 "function mao(t){" +
@@ -331,29 +308,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                 // =========================================
-                // NÚMERO
-                // =========================================
-
-                "function numero(v,c){" +
-
-                "try{" +
-
-                "return Number(v||0).toLocaleString(" +
-                "'pt-BR'," +
-                "{minimumFractionDigits:c,maximumFractionDigits:c}" +
-                ");" +
-
-                "}catch(e){" +
-
-                "return String(v||0);" +
-
-                "}" +
-
-                "}" +
-
-
-                // =========================================
-                // TEXTO CURTO DO STATUS
+                // TEXTO DO STATUS
                 // =========================================
 
                 "function textoStatus(o){" +
@@ -362,7 +317,7 @@ public class MainActivity extends AppCompatActivity {
                 "var nome=String(o.produto||'Oferta Shopee').trim();" +
 
 
-                // Limita nome do produto
+                // Evita nome exageradamente grande
                 "if(nome.length>90){" +
 
                 "nome=nome.substring(0,87)+'...';" +
@@ -407,40 +362,7 @@ public class MainActivity extends AppCompatActivity {
                 "}" +
 
 
-                // Linha 6 - avaliação e vendas juntas
-                "var detalhes=[];" +
-
-
-                "if(Number(o.avaliacao||0)>0){" +
-
-                "detalhes.push(" +
-                "'⭐ '+numero(o.avaliacao,1)" +
-                ");" +
-
-                "}" +
-
-
-                "if(Number(o.vendas||0)>0){" +
-
-                "detalhes.push(" +
-
-                "'🛒 +'+Number(o.vendas).toLocaleString('pt-BR')+' vendidos'" +
-
-                ");" +
-
-                "}" +
-
-
-                "if(detalhes.length){" +
-
-                "linhas.push(" +
-                "detalhes.join(' • ')" +
-                ");" +
-
-                "}" +
-
-
-                // Linha 7 e 8 - link
+                // Link afiliado
                 "if(o.linkAfiliado){" +
 
                 "linhas.push('👉🏾 Compre aqui:');" +
@@ -475,15 +397,6 @@ public class MainActivity extends AppCompatActivity {
                 "var t=textoStatus(o);" +
 
 
-                /*
-                 * IMPORTANTE:
-                 * Agora envia SOMENTE texto + link.
-                 * Não envia mais a imagem como arquivo.
-                 *
-                 * O WhatsApp fica responsável por gerar
-                 * a prévia clicável da Shopee.
-                 */
-
                 "AndroidShare.shareStatusText(t);" +
 
 
@@ -498,7 +411,6 @@ public class MainActivity extends AppCompatActivity {
 
                 // =========================================
                 // BOTÃO WHATSAPP
-                // Continua funcionando como antes
                 // =========================================
 
                 "var oldWhatsapp=window.whatsapp;" +
@@ -551,16 +463,11 @@ public class MainActivity extends AppCompatActivity {
 
 
     // =====================================================
-    // PONTE JAVASCRIPT → ANDROID
+    // PONTE JAVASCRIPT -> ANDROID
     // =====================================================
 
     public class AndroidShareBridge {
 
-
-        /*
-         * NOVO STATUS:
-         * somente texto + link.
-         */
 
         @JavascriptInterface
         public void shareStatusText(
@@ -583,11 +490,11 @@ public class MainActivity extends AppCompatActivity {
 
 
         /*
-         * Mantemos esta função por compatibilidade
-         * com versões anteriores do Index.html.
+         * Mantida por compatibilidade com
+         * versões anteriores do Index.html.
          *
-         * Mesmo que o HTML tente mandar imagem,
-         * o APK agora envia apenas texto + link.
+         * Mesmo se o HTML tentar mandar imagem,
+         * o APK usa apenas texto + link.
          */
 
         @JavascriptInterface
@@ -640,10 +547,7 @@ public class MainActivity extends AppCompatActivity {
 
         /*
          * Abre diretamente o WhatsApp.
-         *
-         * Depois é só escolher:
-         *
-         * Meu status
+         * Depois escolha Meu Status.
          */
 
         intent.setPackage(
@@ -663,9 +567,9 @@ public class MainActivity extends AppCompatActivity {
 
 
             /*
-             * Caso WhatsApp normal
-             * não esteja instalado,
-             * abre o menu do Android.
+             * Se o WhatsApp normal não
+             * estiver instalado, abre
+             * o compartilhamento do Android.
              */
 
             intent.setPackage(
@@ -726,9 +630,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
 
-        executor.shutdownNow();
-
-
         if (
                 webView != null
         ) {
@@ -736,7 +637,6 @@ public class MainActivity extends AppCompatActivity {
             webView.removeJavascriptInterface(
                     "AndroidShare"
             );
-
 
             webView.destroy();
         }
