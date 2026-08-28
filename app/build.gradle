@@ -13,6 +13,26 @@ android {
         versionCode 1
         versionName '1.0.0'
     }
+
+    signingConfigs {
+        assinaturaPermanente {
+            storeFile file(System.getenv("CENTRAL_KEYSTORE_PATH"))
+            storePassword System.getenv("CENTRAL_KEYSTORE_PASSWORD")
+            keyAlias "centraldeofertas"
+            keyPassword System.getenv("CENTRAL_KEY_PASSWORD")
+        }
+    }
+
+    buildTypes {
+        debug {
+            signingConfig signingConfigs.assinaturaPermanente
+        }
+
+        release {
+            signingConfig signingConfigs.assinaturaPermanente
+            minifyEnabled false
+        }
+    }
 }
 
 dependencies {
