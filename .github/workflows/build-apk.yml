@@ -25,18 +25,22 @@ jobs:
           yes | sdkmanager --licenses >/dev/null || true
           sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
-      - name: Restaurar chave fixa do APK
-        uses: actions/cache@v4
-        with:
-          path: ~/.android/debug.keystore
-          key: central-de-ofertas-debug-keystore-v1
-
       - name: Configurar Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.9'
 
+      - name: Reconstruir chave permanente
+        env:
+          KEYSTORE_BASE64: ${{ secrets.CENTRAL_KEYSTORE_BASE64 }}
+        run: |
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/centraldeofertas.jks"
+
       - name: Compilar APK
+        env:
+          CENTRAL_KEYSTORE_PATH: ${{ runner.temp }}/centraldeofertas.jks
+          CENTRAL_KEYSTORE_PASSWORD: ${{ secrets.CENTRAL_KEYSTORE_PASSWORD }}
+          CENTRAL_KEY_PASSWORD: ${{ secrets.CENTRAL_KEY_PASSWORD }}
         run: gradle :app:assembleDebug
 
       - name: Publicar APK
