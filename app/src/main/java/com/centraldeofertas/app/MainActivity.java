@@ -185,9 +185,267 @@ public class MainActivity extends AppCompatActivity {
                                 url
                         );
 
+
+                        // Mantém as funções do APK
                         injetarCompartilhamentoNativo();
+
+
+                        // Remove visualmente o aviso do Apps Script
+                        ocultarAvisoAppsScript();
+
+
+                        /*
+                         * O Google pode inserir a faixa
+                         * alguns milissegundos depois.
+                         *
+                         * Por isso fazemos novas tentativas.
+                         */
+
+                        webView.postDelayed(
+                                () -> ocultarAvisoAppsScript(),
+                                500
+                        );
+
+                        webView.postDelayed(
+                                () -> ocultarAvisoAppsScript(),
+                                1200
+                        );
+
+                        webView.postDelayed(
+                                () -> ocultarAvisoAppsScript(),
+                                2500
+                        );
+
+                        webView.postDelayed(
+                                () -> ocultarAvisoAppsScript(),
+                                4500
+                        );
                     }
                 }
+        );
+    }
+
+
+    // =====================================================
+    // OCULTAR AVISO DO GOOGLE APPS SCRIPT
+    // =====================================================
+
+    private void ocultarAvisoAppsScript() {
+
+        String js =
+
+                "(function(){" +
+
+                "try{" +
+
+                "var frase=" +
+                "'Este aplicativo foi criado por um usuário do Google Apps Script';" +
+
+
+                /*
+                 * Procura o bloco do aviso.
+                 */
+
+                "var elementos=" +
+                "document.querySelectorAll('body *');" +
+
+
+                "for(var i=0;i<elementos.length;i++){" +
+
+                "var el=elementos[i];" +
+
+                "var txt=" +
+                "(el.innerText||'')" +
+                ".replace(/\\s+/g,' ')" +
+                ".trim();" +
+
+
+                "if(" +
+                "txt.indexOf(frase)!==-1" +
+                "&&" +
+                "txt.indexOf('Denunciar abuso')!==-1" +
+                "&&" +
+                "txt.indexOf('Saiba mais')!==-1" +
+                "){" +
+
+
+                "var alvo=el;" +
+
+
+                /*
+                 * Tenta chegar ao container completo
+                 * sem esconder o restante do aplicativo.
+                 */
+
+                "while(" +
+                "alvo.parentElement" +
+                "&&" +
+                "alvo.parentElement!==document.body" +
+                "){" +
+
+                "var pai=alvo.parentElement;" +
+
+                "var textoPai=" +
+                "(pai.innerText||'')" +
+                ".replace(/\\s+/g,' ')" +
+                ".trim();" +
+
+                "var altura=" +
+                "pai.getBoundingClientRect().height;" +
+
+
+                "if(" +
+                "textoPai.indexOf(frase)!==-1" +
+                "&&" +
+                "textoPai.indexOf('Denunciar abuso')!==-1" +
+                "&&" +
+                "textoPai.indexOf('Saiba mais')!==-1" +
+                "&&" +
+                "altura>0" +
+                "&&" +
+                "altura<280" +
+                "){" +
+
+                "alvo=pai;" +
+
+                "}else{" +
+
+                "break;" +
+
+                "}" +
+
+                "}" +
+
+
+                /*
+                 * Esconde completamente a faixa.
+                 */
+
+                "alvo.style.setProperty(" +
+                "'display'," +
+                "'none'," +
+                "'important'" +
+                ");" +
+
+                "alvo.style.setProperty(" +
+                "'height'," +
+                "'0px'," +
+                "'important'" +
+                ");" +
+
+                "alvo.style.setProperty(" +
+                "'min-height'," +
+                "'0px'," +
+                "'important'" +
+                ");" +
+
+                "alvo.style.setProperty(" +
+                "'max-height'," +
+                "'0px'," +
+                "'important'" +
+                ");" +
+
+                "alvo.style.setProperty(" +
+                "'margin'," +
+                "'0px'," +
+                "'important'" +
+                ");" +
+
+                "alvo.style.setProperty(" +
+                "'padding'," +
+                "'0px'," +
+                "'important'" +
+                ");" +
+
+                "alvo.style.setProperty(" +
+                "'border'," +
+                "'0px'," +
+                "'important'" +
+                ");" +
+
+                "alvo.style.setProperty(" +
+                "'overflow'," +
+                "'hidden'," +
+                "'important'" +
+                ");" +
+
+
+                "break;" +
+
+                "}" +
+
+                "}" +
+
+
+                /*
+                 * Segunda tentativa:
+                 * remove individualmente os links
+                 * caso o Google altere um pouco
+                 * a estrutura do aviso.
+                 */
+
+                "var links=" +
+                "document.querySelectorAll('a');" +
+
+
+                "for(var j=0;j<links.length;j++){" +
+
+                "var t=" +
+                "(links[j].innerText||'').trim();" +
+
+
+                "if(" +
+                "t==='Denunciar abuso'" +
+                "||" +
+                "t==='Saiba mais'" +
+                "){" +
+
+                "var bloco=links[j].parentElement;" +
+
+
+                "if(bloco){" +
+
+                "var bt=" +
+                "(bloco.innerText||'')" +
+                ".replace(/\\s+/g,' ');" +
+
+
+                "if(" +
+                "bt.indexOf('Denunciar abuso')!==-1" +
+                "||" +
+                "bt.indexOf('Saiba mais')!==-1" +
+                "){" +
+
+                "bloco.style.setProperty(" +
+                "'display'," +
+                "'none'," +
+                "'important'" +
+                ");" +
+
+                "}" +
+
+                "}" +
+
+                "}" +
+
+                "}" +
+
+
+                "}catch(e){" +
+
+                "console.log(" +
+                "'Aviso Apps Script não localizado'," +
+                "e" +
+                ");" +
+
+                "}" +
+
+                "})();";
+
+
+        webView.evaluateJavascript(
+                js,
+                null
         );
     }
 
@@ -317,7 +575,6 @@ public class MainActivity extends AppCompatActivity {
                 "var nome=String(o.produto||'Oferta Shopee').trim();" +
 
 
-                // Evita nome exageradamente grande
                 "if(nome.length>90){" +
 
                 "nome=nome.substring(0,87)+'...';" +
@@ -328,15 +585,11 @@ public class MainActivity extends AppCompatActivity {
                 "var linhas=[];" +
 
 
-                // Linha 1
                 "linhas.push('🔥 OFERTA NA SHOPEE!');" +
 
-
-                // Linha 2
                 "linhas.push('🛍️ '+nome);" +
 
 
-                // Linha 3
                 "if(Number(o.precoAnterior||0)>0){" +
 
                 "linhas.push(" +
@@ -346,13 +599,11 @@ public class MainActivity extends AppCompatActivity {
                 "}" +
 
 
-                // Linha 4
                 "linhas.push(" +
                 "'✅ Por: '+moeda(o.precoAtual)" +
                 ");" +
 
 
-                // Linha 5
                 "if(Number(o.desconto||0)>0){" +
 
                 "linhas.push(" +
@@ -362,7 +613,6 @@ public class MainActivity extends AppCompatActivity {
                 "}" +
 
 
-                // Link afiliado
                 "if(o.linkAfiliado){" +
 
                 "linhas.push('👉🏾 Compre aqui:');" +
@@ -489,14 +739,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        /*
-         * Mantida por compatibilidade com
-         * versões anteriores do Index.html.
-         *
-         * Mesmo se o HTML tentar mandar imagem,
-         * o APK usa apenas texto + link.
-         */
-
         @JavascriptInterface
         public void shareStatus(
                 String imageUrl,
@@ -545,11 +787,6 @@ public class MainActivity extends AppCompatActivity {
         );
 
 
-        /*
-         * Abre diretamente o WhatsApp.
-         * Depois escolha Meu Status.
-         */
-
         intent.setPackage(
                 "com.whatsapp"
         );
@@ -564,13 +801,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (
                 ActivityNotFoundException e
         ) {
-
-
-            /*
-             * Se o WhatsApp normal não
-             * estiver instalado, abre
-             * o compartilhamento do Android.
-             */
 
             intent.setPackage(
                     null
